@@ -2,11 +2,11 @@ import { BASE_URL } from '@env'
 import init from 'startupjs/init'
 import orm from './model'
 import React, { useState, useEffect } from 'react'
-import { View, Text, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { observer, useDoc, useApi } from 'startupjs'
 import axios from 'axios'
 import './Root.styl'
-import { Increment, SearchPanel } from './components'
+import { Increment, SearchPanel, ItemStatusFilter } from './components'
 
 // Init startupjs connection to server and the ORM.
 // baseUrl option is required for the native to work - it's used
@@ -42,6 +42,14 @@ export default observer(function Root() {
     setStateCounter(0)
   }
 
+  async function onSearchChange(search) {
+    setSearch(search)
+  }
+
+  async function onFilterChange(filter) {
+    setFilter(filter)
+  }
+
   return pug`
     View.body
       Text.greeting Todo List
@@ -53,7 +61,10 @@ export default observer(function Root() {
       TouchableOpacity.button.clear(onPress=reset)
         Text.label RESET
       Text.api /api (updated each 3 sec): #{JSON.stringify(api)}
-      TextInput
+    View.body
+      Text test block
+      SearchPanel(onSearchChange=onSearchChange)
+      ItemStatusFilter(filter=filter onFilterChange=onFilterChange)
   `
 })
 
