@@ -6,7 +6,12 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { observer, useDoc, useApi } from 'startupjs'
 import axios from 'axios'
 import './Root.styl'
-import { Increment, SearchPanel, ItemStatusFilter } from './components'
+import {
+  Increment,
+  SearchPanel,
+  ItemStatusFilter,
+  TodoList
+} from './components'
 
 // Init startupjs connection to server and the ORM.
 // baseUrl option is required for the native to work - it's used
@@ -14,6 +19,7 @@ import { Increment, SearchPanel, ItemStatusFilter } from './components'
 // Initialization must start before doing any subscribes to data.
 init({ baseUrl: BASE_URL, orm })
 
+// eslint-disable-next-line
 export default observer(function Root() {
   let [counter, $counter] = useDoc('counters', 'first')
   if (!counter) throw $counter.addSelf() // custom ORM method (see /model/)
@@ -32,27 +38,80 @@ export default observer(function Root() {
   let forceTrigger = useForceTrigger(3000)
   let [api] = useApi(getApi, [forceTrigger])
 
+  // eslint-disable-next-line
   async function decrement() {
     $counter.increment('value', -1)
     setStateCounter(stateCounter - 1)
   }
 
+  // eslint-disable-next-line
   async function reset() {
     $counter.reset() // custom ORM method (see /model/)
     setStateCounter(0)
   }
 
+  // eslint-disable-next-line
   async function onSearchChange(search) {
     setSearch(search)
   }
 
+  // eslint-disable-next-line
   async function onFilterChange(filter) {
     setFilter(filter)
   }
 
+  // eslint-disable-next-line
+  async function onToggleDone(id) {
+    setTodosList(() => {
+      const items = this.toggleProperty(todosList, id, 'done')
+      return { items }
+    })
+  }
+
+  // eslint-disable-next-line
+  async function onToggleImportant(id) {
+    setTodosList(() => {
+      const items = this.toggleProperty(todosList, id, 'important')
+      return { items }
+    })
+  }
+
+  // eslint-disable-next-line
+  async function onDelete(id) {
+    setTodosList(() => {
+      const idx = todosList.findIndex((item) => item.id === id)
+      const items = [...todosList.slice(0, idx), ...todosList.slice(idx + 1)]
+      return { items }
+    })
+  }
+
+  // eslint-disable-next-line
+  async function filterItems(items, filter) {
+    if (filter === 'all') {
+      return items
+    } else if (filter === 'active') {
+      return items.filter((item) => !item.done)
+    } else if (filter === 'done') {
+      return items.filter((item) => item.done)
+    }
+  }
+
+  // eslint-disable-next-line
+  async function searchItems(items, search) {
+    if (search.length === 0) {
+      return items
+    }
+
+    return items.filter((item) => {
+      return item.label.toLowerCase().indexOf(search.toLowerCase()) > -1
+    })
+  }
+
+  const visibleItems = searchItems(filterItems(todosList, filter), search)
+
   return pug`
     View.body
-      Text.greeting Todo List
+      Text.greeting Counter
       Text DB Counter: #{counter && counter.value}
       Text State Counter: #{stateCounter}
       Increment(stateCounter=stateCounter setStateCounter=setStateCounter)
@@ -62,12 +121,14 @@ export default observer(function Root() {
         Text.label RESET
       Text.api /api (updated each 3 sec): #{JSON.stringify(api)}
     View.body
-      Text test block
+      Text.greeting Todo List
       SearchPanel(onSearchChange=onSearchChange)
       ItemStatusFilter(filter=filter onFilterChange=onFilterChange)
+      TodoList(items=visibleItems onToggleImportant=onToggleImportant onToggleDone=onToggleDone onDelete=onDelete)
   `
 })
 
+// eslint-disable-next-line
 async function getApi() {
   try {
     let res = await axios.get('/api')
@@ -83,6 +144,7 @@ async function getApi() {
 // Custom hook. A way to rerun something each `delay` ms.
 // WARNING! This is for demo purposes only. Don't use this trick
 // in production since the useApi data is not getting cleaned up.
+// eslint-disable-next-line
 function useForceTrigger(delay = 3000) {
   let [forceTrigger, setForceTrigger] = useState(0)
   useEffect(() => {

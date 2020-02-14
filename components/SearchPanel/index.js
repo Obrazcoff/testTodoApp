@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { TextInput } from 'react-native'
-import { observer, useModel } from 'startupjs'
+import { observer } from 'startupjs'
 import './search-panel.styl'
 
+// eslint-disable-next-line
 export default observer(function SearchPanel({ onSearchChange }) {
   const [term, setTerm] = useState('')
 
+  // eslint-disable-next-line
   function onTermChange(e) {
     setTerm(e.target.value)
     onSearchChange(e.target.value)
