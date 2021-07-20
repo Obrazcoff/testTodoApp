@@ -29,7 +29,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-hot-loader": "^4.12.19",
-    "react-native": "0.61.5",
+    "react-native": "0.62.3",
     "react-native-web": "0.11.7",
     "source-map-support": "^0.5.16",
     "startupjs": "^0.14.6"
